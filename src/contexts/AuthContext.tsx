@@ -66,23 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!error && data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email: data.user.email!,
+      // Use the database function to create profile and subscription
+      const { error: profileError } = await supabase.rpc('create_user_profile', {
+        user_id: data.user.id,
+        user_email: data.user.email!,
         full_name: fullName,
         company_name: companyName || null,
-        role: 'requester',
       });
-
-      if (!profileError) {
-        await supabase.from('subscriptions').insert({
-          user_id: data.user.id,
-          tier: 'free',
-          status: 'trial',
-          project_limit: 3,
-          projects_used: 0,
-        });
-      }
 
       return { error: profileError };
     }
