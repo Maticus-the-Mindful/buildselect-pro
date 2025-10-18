@@ -66,8 +66,8 @@ export function ChecklistProgress({
         </div>
         
         {/* Progress Ring */}
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 mx-auto sm:mx-0">
-          <svg className="w-full h-full transform -rotate-90">
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 mx-auto sm:mx-0">
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 64 64">
             <circle
               cx="32"
               cy="32"
@@ -91,7 +91,7 @@ export function ChecklistProgress({
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
               {completedCount}/{items.length}
             </span>
           </div>
