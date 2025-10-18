@@ -5,6 +5,13 @@ import { Plus, FolderOpen, Calendar, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
 import { WelcomeModal } from '../components/dashboard/WelcomeModal';
+import { HeroSection } from '../components/dashboard/HeroSection';
+import { ChecklistProgress } from '../components/dashboard/ChecklistProgress';
+import { TrustMetrics } from '../components/dashboard/TrustMetrics';
+import { StarterTemplates } from '../components/dashboard/StarterTemplates';
+import { SampleProject } from '../components/dashboard/SampleProject';
+import { WhatsNew } from '../components/dashboard/WhatsNew';
+import { EmptyState } from '../components/dashboard/EmptyState';
 import { Navbar } from '../components/layout/Navbar';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -71,6 +78,33 @@ export function Dashboard() {
     window.location.reload();
   };
 
+  const handleSelectTemplate = (templateId: string) => {
+    console.log('Selected template:', templateId);
+    // Template selection logic - will create project with template
+    setShowNewProject(true);
+  };
+
+  const handleOpenSample = () => {
+    console.log('Opening sample project');
+    // Logic to open/create sample project
+  };
+
+  const handleWatchDemo = () => {
+    console.log('Watch demo clicked');
+    // Logic to show demo video/modal
+  };
+
+  const handleUploadPlan = () => {
+    console.log('Upload plan clicked');
+    // Logic to trigger file upload
+    setShowNewProject(true);
+  };
+
+  const handleUseDemoCatalog = () => {
+    console.log('Using Ferguson demo catalog');
+    // Logic to set demo catalog as default
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
@@ -87,66 +121,88 @@ export function Dashboard() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Projects</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{projects.length} total projects</p>
-          </div>
-          <button
-            onClick={() => setShowNewProject(true)}
-            disabled={subscription && subscription.projects_used >= subscription.project_limit}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus className="w-5 h-5" />
-            New Project
-          </button>
-        </div>
-
-        {projects.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 p-12 text-center">
-            <FolderOpen className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Projects Yet</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Create your first project to get started with BuildSelect Pro
-            </p>
-            <button
-              onClick={() => setShowNewProject(true)}
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              Create First Project
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                onClick={() => handleProjectClick(project.id)}
-                className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{project.name}</h3>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(project.status)}`}>
-                    {getStatusLabel(project.status)}
-                  </span>
-                </div>
-
-                {project.client_name && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
-                    <User className="w-4 h-4" />
-                    {project.client_name}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-4">
-                  <Calendar className="w-4 h-4" />
-                  Updated {new Date(project.updated_at).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Hero Section - Always visible for new users or when no projects */}
+        {projects.length === 0 && (
+          <HeroSection
+            onCreateProject={() => setShowNewProject(true)}
+            onUploadPlan={handleUploadPlan}
+            onWatchDemo={handleWatchDemo}
+          />
         )}
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          {/* Left Column - 2/3 width */}
+          <div className="lg:col-span-2 space-y-6">
+            {projects.length === 0 ? (
+              <>
+                <EmptyState
+                  onCreateProject={() => setShowNewProject(true)}
+                  onUseDemoCatalog={handleUseDemoCatalog}
+                />
+                <StarterTemplates onSelectTemplate={handleSelectTemplate} />
+                <SampleProject onOpenSample={handleOpenSample} />
+              </>
+            ) : (
+              <>
+                {/* Projects Section */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Projects</h2>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{projects.length} total projects</p>
+                    </div>
+                    <button
+                      onClick={() => setShowNewProject(true)}
+                      disabled={subscription && subscription.projects_used >= subscription.project_limit}
+                      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    >
+                      <Plus className="w-5 h-5" />
+                      New Project
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {projects.map((project) => (
+                      <div
+                        key={project.id}
+                        onClick={() => handleProjectClick(project.id)}
+                        className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-5 border border-gray-200 dark:border-slate-600 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white flex-1 pr-2">{project.name}</h3>
+                          <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${getStatusColor(project.status)}`}>
+                            {getStatusLabel(project.status)}
+                          </span>
+                        </div>
+
+                        {project.client_name && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
+                            <User className="w-4 h-4" />
+                            {project.client_name}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-3">
+                          <Calendar className="w-3.5 h-3.5" />
+                          Updated {new Date(project.updated_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <ChecklistProgress />
+              </>
+            )}
+          </div>
+
+          {/* Right Column - 1/3 width */}
+          <div className="space-y-6">
+            <TrustMetrics />
+            <WhatsNew />
+          </div>
+        </div>
       </main>
 
       {showNewProject && (
