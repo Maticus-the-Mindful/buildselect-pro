@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>House Plan Selection &amp; Bid Platform</title>
+    <style>
+      /* Prevent white flash before React loads */
+      html {
+        background-color: rgb(248, 250, 252);
+      }
+      html.dark {
+        background-color: rgb(15, 23, 42);
+      }
+      body, #root {
+        background-color: transparent;
+        min-height: 100vh;
+      }
+    </style>
+    <script>
+      // Apply dark mode immediately to prevent flash
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

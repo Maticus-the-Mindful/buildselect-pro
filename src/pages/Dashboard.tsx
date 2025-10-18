@@ -1,0 +1,298 @@
+// @ts-nocheck
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { Plus, FolderOpen, Calendar, User } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import type { Database } from '../lib/database.types';
+import { WelcomeModal } from '../components/dashboard/WelcomeModal';
+import { Navbar } from '../components/layout/Navbar';
+
+type Project = Database['public']['Tables']['projects']['Row'];
+type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+
+export function Dashboard() {
+  const { profile } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+
+    const [projectsResult, subResult] = await Promise.all([
+      supabase
+        .from('projects')
+        .select('*')
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('subscriptions')
+        .select('*')
+        .maybeSingle()
+    ]);
+
+    if (projectsResult.data) {
+      setProjects(projectsResult.data);
+      if (projectsResult.data.length === 0) {
+        const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+        if (!hasSeenWelcome) {
+          setShowWelcome(true);
+        }
+      }
+    }
+    if (subResult.data) setSubscription(subResult.data);
+
+    setLoading(false);
+  };
+
+  const getStatusColor = (status: Project['status']) => {
+    const colors = {
+      draft: 'bg-gray-100 text-gray-700',
+      questionnaire: 'bg-blue-100 text-blue-700',
+      generating: 'bg-yellow-100 text-yellow-700',
+      review: 'bg-purple-100 text-purple-700',
+      approved: 'bg-green-100 text-green-700',
+      exported: 'bg-slate-100 text-slate-700'
+    };
+    return colors[status] || colors.draft;
+  };
+
+  const getStatusLabel = (status: Project['status']) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    window.history.pushState({}, '', `/project/${projectId}`);
+    window.location.reload();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors">
+      <Navbar />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Projects</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{projects.length} total projects</p>
+          </div>
+          <button
+            onClick={() => setShowNewProject(true)}
+            disabled={subscription && subscription.projects_used >= subscription.project_limit}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus className="w-5 h-5" />
+            New Project
+          </button>
+        </div>
+
+        {projects.length === 0 ? (
+          <div className="bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 p-12 text-center">
+            <FolderOpen className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Projects Yet</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Create your first project to get started with BuildSelect Pro
+            </p>
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              Create First Project
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => handleProjectClick(project.id)}
+                className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{project.name}</h3>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(project.status)}`}>
+                    {getStatusLabel(project.status)}
+                  </span>
+                </div>
+
+                {project.client_name && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
+                    <User className="w-4 h-4" />
+                    {project.client_name}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-4">
+                  <Calendar className="w-4 h-4" />
+                  Updated {new Date(project.updated_at).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
+      {showNewProject && (
+        <NewProjectModal
+          onClose={() => setShowNewProject(false)}
+          onSuccess={() => {
+            setShowNewProject(false);
+            loadData();
+          }}
+        />
+      )}
+
+      {showWelcome && (
+        <WelcomeModal
+          onClose={() => {
+            setShowWelcome(false);
+            localStorage.setItem('hasSeenWelcome', 'true');
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+interface NewProjectModalProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function NewProjectModal({ onClose, onSuccess }: NewProjectModalProps) {
+  const [name, setName] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    // Get the current user session
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+    if (!currentUser) {
+      setError('You must be logged in to create a project');
+      setLoading(false);
+      return;
+    }
+
+    const { data, error: insertError } = await supabase
+      .from('projects')
+      .insert({
+        user_id: currentUser.id,
+        name,
+        client_name: clientName || null,
+        client_email: clientEmail || null,
+        status: 'draft'
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      setError(insertError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data) {
+      window.history.pushState({}, '', `/project/${data.id}`);
+      window.location.reload();
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg max-w-md w-full p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Create New Project</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Project Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="e.g., Smith Residence Renovation"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Client Name
+            </label>
+            <input
+              type="text"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="John Smith"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Client Email
+            </label>
+            <input
+              type="email"
+              value={clientEmail}
+              onChange={(e) => setClientEmail(e.target.value)}
+              placeholder="john@example.com"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Creating...' : 'Create Project'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
