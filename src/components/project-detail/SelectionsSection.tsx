@@ -179,7 +179,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
 
   if (selections.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray- dark:border-slate-300 p-12 text-center">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 p-12 text-center">
         <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
           No Selections Yet
@@ -217,7 +217,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray- dark:border-slate-200">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Product Selections</h2>
@@ -233,13 +233,13 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
         </div>
 
         {selections.length > 0 && (
-          <div className="flex gap-3 mb-6 pb-6 border-b border-gray- dark:border-slate-200">
+          <div className="flex gap-3 mb-6 pb-6 border-b border-gray-200 dark:border-slate-700">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               <select
                 value={filterRoom}
                 onChange={(e) => setFilterRoom(e.target.value)}
-                className="px-3 py-2 border border-gray- dark:border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Rooms</option>
                 {uniqueRooms.map(room => (
@@ -250,7 +250,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 border border-gray- dark:border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Categories</option>
               {uniqueCategories.map(cat => (
@@ -273,7 +273,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
 
         <div className="space-y-4">
           {displaySelections.map((selection) => (
-            <div key={selection.id} className="border border-gray- dark:border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div key={selection.id} className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow">
               {editingId === selection.id ? (
                 <div className="space-y-4">
                   <div className="flex gap-4">
@@ -294,7 +294,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
                             min="1"
                             value={editValues.quantity}
                             onChange={(e) => setEditValues(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                            className="w-full px-3 py-2 border border-gray- dark:border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
@@ -303,7 +303,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
                             type="text"
                             value={editValues.finish}
                             onChange={(e) => setEditValues(prev => ({ ...prev, finish: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray- dark:border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
@@ -313,7 +313,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
                           value={editValues.notes}
                           onChange={(e) => setEditValues(prev => ({ ...prev, notes: e.target.value }))}
                           rows={2}
-                          className="w-full px-3 py-2 border border-gray- dark:border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
                     </div>
@@ -328,7 +328,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
                     </button>
                     <button
                       onClick={cancelEditing}
-                      className="flex items-center gap-2 px-4 py-2 border border-gray- dark:border-slate-300 text-gray-700 dark:text-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded text-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                     >
                       <X className="w-4 h-4" />
                       Cancel
@@ -394,7 +394,7 @@ export function SelectionsSection({ projectId }: SelectionsSectionProps) {
           ))}
         </div>
 
-        <div className="flex gap-3 mt-6 pt-6 border-t border-gray- dark:border-slate-200">
+        <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-slate-700">
           <button className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
             <Download className="w-5 h-5" />
             Download Selection Book

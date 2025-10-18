@@ -14,7 +14,7 @@ interface UploadingFile {
 }
 
 export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
-  const [, setUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,8 +53,9 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
           file_name: file.name,
           file_type: fileType,
           file_url: publicUrl,
-          file_size: file.size
-        } as any);
+          file_size: file.size,
+          page_type: null
+        });
 
         setUploadingFiles(prev =>
           prev.map((f, idx) => idx === i ? { ...f, progress: 100 } : f)

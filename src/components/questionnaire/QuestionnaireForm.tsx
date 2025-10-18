@@ -233,11 +233,11 @@ export function QuestionnaireForm({ projectId, onComplete }: QuestionnaireFormPr
                 onClick={() => setData(prev => ({ ...prev, energy_type: type }))}
                 className={`w-full p-4 border-2 rounded-lg text-left transition-all ${
                   data.energy_type === type
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-300 dark:border-slate-600 hover:border-gray-400'
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30'
+                    : 'border-gray-300 dark:border-slate-600 hover:border-gray-400 dark:hover:border-slate-500'
                 }`}
               >
-                <div className="font-medium text-gray-900 capitalize">{type}</div>
+                <div className="font-medium text-gray-900 dark:text-white capitalize">{type}</div>
               </button>
             ))}
           </div>
@@ -313,7 +313,7 @@ export function QuestionnaireForm({ projectId, onComplete }: QuestionnaireFormPr
           </div>
 
           {data.room_list.length === 0 ? (
-            <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+            <div className="text-center py-8 text-gray-600 dark:text-gray-300">
               Add rooms to specify where products will be used
             </div>
           ) : (
@@ -361,7 +361,7 @@ export function QuestionnaireForm({ projectId, onComplete }: QuestionnaireFormPr
             </div>
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Energy Type</p>
-              <p className="text-gray-900 capitalize">{data.energy_type}</p>
+              <p className="text-gray-900 dark:text-white capitalize">{data.energy_type}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Style</p>
