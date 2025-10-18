@@ -8,7 +8,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo }: HeroSectionProps) {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-xl md:rounded-2xl p-6 md:p-12 mb-6 md:mb-8 border border-blue-100 dark:border-slate-700">
+    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-12 mb-6 md:mb-8 border border-blue-100 dark:border-slate-700">
       <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
         {/* Left Column - Content */}
         <div className="space-y-6">
