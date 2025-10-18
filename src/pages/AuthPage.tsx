@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, UserPlus, Mail, ArrowLeft } from 'lucide-react';
+import { LogIn, UserPlus, Mail, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +11,7 @@ export function AuthPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,13 +101,26 @@ export function AuthPage() {
             {!isForgotPassword && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -127,18 +141,19 @@ export function AuthPage() {
 
           <div className="mt-6 text-center space-y-2">
             {isForgotPassword ? (
-              <button
-                onClick={() => {
-                  setIsForgotPassword(false);
-                  setIsLogin(true);
-                  setError('');
-                  setSuccess('');
-                }}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1 mx-auto"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Sign In
-              </button>
+                <button
+                  onClick={() => {
+                    setIsForgotPassword(false);
+                    setIsLogin(true);
+                    setError('');
+                    setSuccess('');
+                    setShowPassword(false);
+                  }}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1 mx-auto"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Sign In
+                </button>
             ) : (
               <>
                 {isLogin && (
@@ -148,6 +163,7 @@ export function AuthPage() {
                         setIsForgotPassword(true);
                         setError('');
                         setSuccess('');
+                        setShowPassword(false);
                       }}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
@@ -161,6 +177,7 @@ export function AuthPage() {
                       setIsLogin(!isLogin);
                       setError('');
                       setSuccess('');
+                      setShowPassword(false);
                     }}
                     className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
