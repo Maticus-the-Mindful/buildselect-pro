@@ -43,6 +43,13 @@ export function AuthPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/assets/logos/bsp_logo_transparent_BASIC_01.png" 
+              alt="BuildSelect Pro" 
+              className="h-16 w-auto"
+            />
+          </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white dark:text-white mb-2">BuildSelect Pro</h1>
           <p className="text-gray-600 dark:text-gray-300">Transform house plans into ready-to-buy selection packages</p>
         </div>

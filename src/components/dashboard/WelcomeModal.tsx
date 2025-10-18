@@ -16,8 +16,12 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/assets/logos/bsp_logo_transparent_BASIC_01.png" 
+              alt="BuildSelect Pro" 
+              className="h-16 w-auto"
+            />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome to BuildSelect Pro!

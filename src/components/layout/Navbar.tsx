@@ -47,11 +47,18 @@ export function Navbar() {
     <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">BuildSelect Pro</h1>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-0.5 truncate">
-              Welcome back, {profile?.full_name || profile?.email}
-            </p>
+          <div className="min-w-0 flex-1 flex items-center gap-3">
+            <img 
+              src="/assets/logos/bsp_logo_transparent_BASIC_180px_01.png" 
+              alt="BuildSelect Pro" 
+              className="h-8 sm:h-10 w-auto flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">BuildSelect Pro</h1>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-0.5 truncate">
+                Welcome back, {profile?.full_name || profile?.email}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {subscription && (

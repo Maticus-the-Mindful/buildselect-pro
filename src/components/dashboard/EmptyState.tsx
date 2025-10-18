@@ -56,9 +56,13 @@ export function EmptyState({ onCreateProject, onUseDemoCatalog }: EmptyStateProp
       {/* Main Empty State Card */}
       <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-600 p-4 sm:p-6 md:p-8 lg:p-12">
         <div className="max-w-2xl mx-auto">
-          {/* Icon */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-            <FolderPlus className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 dark:text-blue-400" />
+          {/* Logo */}
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <img 
+              src="/assets/logos/bsp_logo_transparent_BASIC_01.png" 
+              alt="BuildSelect Pro" 
+              className="h-16 sm:h-20 w-auto"
+            />
           </div>
 
           {/* Heading */}

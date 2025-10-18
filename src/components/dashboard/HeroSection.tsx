@@ -13,6 +13,13 @@ export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo }: Hero
         {/* Left Column - Content */}
         <div className="space-y-6">
           <div className="space-y-2 md:space-y-3">
+            <div className="flex items-center gap-3 mb-2">
+              <img 
+                src="/assets/logos/bsp_logo_transparent_BASIC_01.png" 
+                alt="BuildSelect Pro" 
+                className="h-12 sm:h-16 w-auto"
+              />
+            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
               Turn plans into selections in minutes
             </h1>
