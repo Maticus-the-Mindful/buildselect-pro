@@ -44,8 +44,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+    <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm w-full">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 w-full">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1 flex items-center gap-3">
             <img 

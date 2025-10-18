@@ -117,10 +117,10 @@ export function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors overflow-x-hidden">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">
         {/* Hero Section - Always visible for new users or when no projects */}
         {projects.length === 0 && (
           <HeroSection
@@ -131,7 +131,7 @@ export function Dashboard() {
         )}
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 min-h-0">
           {/* Left Column - 2/3 width */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {projects.length === 0 ? (
