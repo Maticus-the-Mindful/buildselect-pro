@@ -8,43 +8,43 @@ interface HeroSectionProps {
 
 export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo }: HeroSectionProps) {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 md:p-12 mb-8 border border-blue-100 dark:border-slate-700">
-      <div className="grid md:grid-cols-2 gap-8 items-center">
+    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-xl md:rounded-2xl p-6 md:p-12 mb-6 md:mb-8 border border-blue-100 dark:border-slate-700">
+      <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
         {/* Left Column - Content */}
         <div className="space-y-6">
-          <div className="space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+          <div className="space-y-2 md:space-y-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
               Turn plans into selections in minutes
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg text-gray-600 dark:text-gray-300">
               Upload a PDF, choose a catalog, and get an editable selections book and quote you can send today.
             </p>
           </div>
 
           {/* Primary CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               onClick={onCreateProject}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium text-sm sm:text-base"
             >
-              <FolderPlus className="w-5 h-5" />
+              <FolderPlus className="w-4 h-4 sm:w-5 sm:h-5" />
               Create First Project
             </button>
             
             <button
               onClick={onUploadPlan}
-              className="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all font-medium"
+              className="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all font-medium text-sm sm:text-base"
             >
-              <Upload className="w-5 h-5" />
+              <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
               Upload Plan PDF
             </button>
           </div>
 
           <button
             onClick={onWatchDemo}
-            className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+            className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors text-sm sm:text-base"
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Watch 60-second Demo
           </button>
         </div>

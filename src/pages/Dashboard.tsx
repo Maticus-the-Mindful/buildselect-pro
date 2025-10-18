@@ -120,7 +120,7 @@ export function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Hero Section - Always visible for new users or when no projects */}
         {projects.length === 0 && (
           <HeroSection
@@ -131,9 +131,9 @@ export function Dashboard() {
         )}
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Left Column - 2/3 width */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {projects.length === 0 ? (
               <>
                 <EmptyState
@@ -146,45 +146,45 @@ export function Dashboard() {
             ) : (
               <>
                 {/* Projects Section */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Projects</h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{projects.length} total projects</p>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Your Projects</h2>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">{projects.length} total projects</p>
                     </div>
                     <button
                       onClick={() => setShowNewProject(true)}
                       disabled={subscription && subscription.projects_used >= subscription.project_limit}
-                      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm sm:text-base"
                     >
-                      <Plus className="w-5 h-5" />
+                      <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                       New Project
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {projects.map((project) => (
                       <div
                         key={project.id}
                         onClick={() => handleProjectClick(project.id)}
-                        className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-5 border border-gray-200 dark:border-slate-600 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer"
+                        className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 sm:p-5 border border-gray-200 dark:border-slate-600 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer"
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-base font-semibold text-gray-900 dark:text-white flex-1 pr-2">{project.name}</h3>
-                          <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${getStatusColor(project.status)}`}>
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white flex-1">{project.name}</h3>
+                          <span className={`px-2 py-0.5 sm:py-1 rounded text-xs font-medium flex-shrink-0 whitespace-nowrap ${getStatusColor(project.status)}`}>
                             {getStatusLabel(project.status)}
                           </span>
                         </div>
 
                         {project.client_name && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
-                            <User className="w-4 h-4" />
-                            {project.client_name}
+                          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">
+                            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <span className="truncate">{project.client_name}</span>
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-3">
-                          <Calendar className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-3">
+                          <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           Updated {new Date(project.updated_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -198,7 +198,7 @@ export function Dashboard() {
           </div>
 
           {/* Right Column - 1/3 width */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <TrustMetrics />
             <WhatsNew />
           </div>

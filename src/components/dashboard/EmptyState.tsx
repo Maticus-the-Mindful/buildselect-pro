@@ -52,20 +52,20 @@ export function EmptyState({ onCreateProject, onUseDemoCatalog }: EmptyStateProp
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Main Empty State Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-600 p-12">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-600 p-6 sm:p-8 md:p-12">
         <div className="max-w-2xl mx-auto">
           {/* Icon */}
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FolderPlus className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <FolderPlus className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 dark:text-blue-400" />
           </div>
 
           {/* Heading */}
-          <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-3">
+          <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-900 dark:text-white mb-2 sm:mb-3">
             No Projects Yet
           </h3>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+          <p className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-md mx-auto">
             Create your first project to start generating product selections and quotes
           </p>
 
@@ -145,12 +145,12 @@ export function EmptyState({ onCreateProject, onUseDemoCatalog }: EmptyStateProp
           {/* Primary CTA */}
           <button
             onClick={onCreateProject}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium text-lg mb-4"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 px-5 sm:px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium text-base sm:text-lg mb-3 sm:mb-4"
           >
             Create Your First Project
           </button>
 
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             Or start with a template from the section below
           </p>
         </div>

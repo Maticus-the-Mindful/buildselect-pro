@@ -54,20 +54,20 @@ export function ChecklistProgress({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+        <div className="flex-1">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             Get Started in 3 Steps
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
             Complete these steps to create your first project
           </p>
         </div>
         
         {/* Progress Ring */}
-        <div className="relative w-16 h-16">
-          <svg className="w-16 h-16 transform -rotate-90">
+        <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 mx-auto sm:mx-0">
+          <svg className="w-full h-full transform -rotate-90">
             <circle
               cx="32"
               cy="32"
@@ -112,28 +112,28 @@ export function ChecklistProgress({
                   toggleItem(item.id);
                 }
               }}
-              className={`w-full flex items-start gap-4 p-4 rounded-lg border-2 transition-all ${
+              className={`w-full flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border-2 transition-all ${
                 item.completed
                   ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
                   : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600'
               }`}
             >
               {/* Checkbox */}
-              <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+              <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                 item.completed
                   ? 'bg-green-600 border-green-600'
                   : 'border-gray-300 dark:border-slate-500'
               }`}>
-                {item.completed && <Check className="w-4 h-4 text-white" />}
+                {item.completed && <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />}
               </div>
 
               {/* Icon */}
-              <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+              <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
                 item.completed
                   ? 'bg-green-100 dark:bg-green-800'
                   : 'bg-blue-100 dark:bg-blue-900'
               }`}>
-                <Icon className={`w-5 h-5 ${
+                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${
                   item.completed
                     ? 'text-green-600 dark:text-green-400'
                     : 'text-blue-600 dark:text-blue-400'
@@ -141,8 +141,8 @@ export function ChecklistProgress({
               </div>
 
               {/* Label */}
-              <div className="flex-1 text-left">
-                <p className={`font-medium ${
+              <div className="flex-1 text-left min-w-0">
+                <p className={`font-medium text-sm sm:text-base ${
                   item.completed
                     ? 'text-green-900 dark:text-green-100 line-through'
                     : 'text-gray-900 dark:text-white'
