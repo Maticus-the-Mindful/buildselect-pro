@@ -43,8 +43,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   };
 
   const handleBackToDashboard = () => {
-    window.history.pushState({}, '', '/');
-    window.location.reload();
+    window.location.href = '/';
   };
 
   const updateProjectStatus = async (newStatus: Project['status']) => {
