@@ -201,7 +201,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 mb-6">
-          <div className="flex border-b border-gray-200 dark:border-slate-700 overflow-x-auto">
+          <div className="flex overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
