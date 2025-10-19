@@ -201,21 +201,21 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 mb-6">
-          <div className="flex overflow-x-auto">
+          <div className="flex">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 sm:px-6 py-4 font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                  className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 lg:px-6 py-4 font-medium transition-colors flex-1 ${
                     activeTab === tab.id
                       ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">{tab.label}</span>
+                  <span className="text-xs sm:text-sm lg:text-base text-center leading-tight">{tab.label}</span>
                 </button>
               );
             })}
