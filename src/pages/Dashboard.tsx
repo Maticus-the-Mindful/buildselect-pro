@@ -270,7 +270,9 @@ export function Dashboard() {
                   </div>
                 </div>
 
-                <ChecklistProgress />
+                <ChecklistProgress 
+                  onConnectCatalog={handleConnectCatalog}
+                />
               </>
             )}
           </div>

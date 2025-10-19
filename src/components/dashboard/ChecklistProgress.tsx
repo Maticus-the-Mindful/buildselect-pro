@@ -115,7 +115,7 @@ export function ChecklistProgress({
               className={`w-full flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border-2 transition-all ${
                 item.completed
                   ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                  : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600'
+                  : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md cursor-pointer'
               }`}
             >
               {/* Checkbox */}
