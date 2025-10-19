@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Brain, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useBlueprintAnalysis } from '../../hooks/useBlueprintAnalysis';
 import type { Database } from '../../lib/database.types';
@@ -16,12 +16,19 @@ interface BlueprintAnalysisButtonProps {
  * Shows different states:
  * - Pending: "Analyze Blueprint" button
  * - Processing: Loading spinner
- * - Completed: Checkmark with room count
+ * - Completed: Checkmark with room count (auto-expanded)
  * - Failed: Error icon with retry button
  */
 export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintAnalysisButtonProps) {
   const { analyzeFile, analyzing } = useBlueprintAnalysis();
   const [showResults, setShowResults] = useState(false);
+
+  // Automatically show results when analysis is completed
+  useEffect(() => {
+    if (file.processing_status === 'completed' && file.ai_analysis_json) {
+      setShowResults(true);
+    }
+  }, [file.processing_status, file.ai_analysis_json]);
 
   // Don't show for images - only for actual blueprints
   if (file.file_type === 'image') {
@@ -31,9 +38,9 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
   const handleAnalyze = async () => {
     try {
       const results = await analyzeFile(file.id, file.file_url, file.file_type);
-      setShowResults(true);
 
       // Trigger parent component refresh to show updated status
+      // The useEffect will automatically expand the results
       onAnalysisComplete?.();
 
       // Optional: Show toast notification
@@ -52,7 +59,7 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
           <button
             onClick={() => setShowResults(!showResults)}
             className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-            title="View analysis results"
+            title={showResults ? "Click to hide results" : "Click to show results"}
           >
             <CheckCircle className="w-4 h-4" />
             <span>AI Analyzed</span>
