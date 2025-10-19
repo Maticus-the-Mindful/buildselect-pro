@@ -128,7 +128,7 @@ export function FileList({ projectId, onFileDeleted }: FileListProps) {
               {getFileTypeName(file.file_type)} • {formatFileSize(file.file_size)} • Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
             </p>
             <div className="mt-2">
-              <BlueprintAnalysisButton file={file} />
+              <BlueprintAnalysisButton file={file} onAnalysisComplete={loadFiles} />
             </div>
           </div>
 

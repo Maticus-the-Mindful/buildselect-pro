@@ -7,6 +7,7 @@ type ProjectFile = Database['public']['Tables']['project_files']['Row'];
 
 interface BlueprintAnalysisButtonProps {
   file: ProjectFile;
+  onAnalysisComplete?: () => void;
 }
 
 /**
@@ -18,7 +19,7 @@ interface BlueprintAnalysisButtonProps {
  * - Completed: Checkmark with room count
  * - Failed: Error icon with retry button
  */
-export function BlueprintAnalysisButton({ file }: BlueprintAnalysisButtonProps) {
+export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintAnalysisButtonProps) {
   const { analyzeFile, analyzing } = useBlueprintAnalysis();
   const [showResults, setShowResults] = useState(false);
 
@@ -32,10 +33,15 @@ export function BlueprintAnalysisButton({ file }: BlueprintAnalysisButtonProps) 
       const results = await analyzeFile(file.id, file.file_url, file.file_type);
       setShowResults(true);
 
+      // Trigger parent component refresh to show updated status
+      onAnalysisComplete?.();
+
       // Optional: Show toast notification
       console.log('Analysis complete:', results);
     } catch (error) {
       console.error('Analysis failed:', error);
+      // Also refresh on error to show the failed status
+      onAnalysisComplete?.();
     }
   };
 

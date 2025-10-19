@@ -4,7 +4,14 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm install @anthropic-ai/sdk pdfjs-dist)",
       "Bash(npm install --save-dev @types/papaparse)",
-      "Bash(supabase db push)"
+      "Bash(supabase db push)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(git add src/utils/pdfToImage.ts)",
+      "Bash(git commit -m \"Fix PDF.js worker CDN URL - use stable version 3.11.174 instead of broken 5.4.296\")",
+      "Bash(git push origin main)",
+      "Bash(npm install pdfjs-dist@3.11.174)",
+      "Bash(git add package.json package-lock.json)",
+      "Bash(git commit -m \"Downgrade pdfjs-dist to 3.11.174 to match worker version and fix compatibility\")"
     ],
     "deny": [],
     "ask": []
