@@ -110,19 +110,45 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
     <div>
       {getStatusButton()}
 
-      {/* Results preview (optional - can be expanded to show full analysis) */}
+      {/* Results preview - shows detailed room breakdown */}
       {showResults && file.processing_status === 'completed' && file.ai_analysis_json && (
         <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg text-xs">
-          <div className="font-medium text-green-900 mb-1">Analysis Results</div>
-          <div className="text-green-700 space-y-1">
-            <div>
-              Rooms detected: {(file.ai_analysis_json as any).rooms?.length || 0}
+          <div className="font-medium text-green-900 mb-2">Analysis Results</div>
+
+          {/* Room breakdown */}
+          {(file.ai_analysis_json as any).rooms && (file.ai_analysis_json as any).rooms.length > 0 && (
+            <div className="mb-3">
+              <div className="font-medium text-green-800 mb-1.5">
+                Rooms ({(file.ai_analysis_json as any).rooms.length}):
+              </div>
+              <div className="space-y-1 pl-2">
+                {(file.ai_analysis_json as any).rooms.map((room: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-start text-green-700">
+                    <span className="font-medium">{room.name || `Room ${idx + 1}`}</span>
+                    <span className="text-green-600 ml-2">
+                      {room.dimensions?.squareFootage
+                        ? `${Math.round(room.dimensions.squareFootage)} sq ft`
+                        : 'N/A'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div>
-              Total area: {(file.ai_analysis_json as any).totalSquareFootage || 0} sq ft
+          )}
+
+          {/* Summary stats */}
+          <div className="text-green-700 space-y-1 pt-2 border-t border-green-200">
+            <div className="flex justify-between">
+              <span>Total area:</span>
+              <span className="font-medium">
+                {(file.ai_analysis_json as any).totalSquareFootage || 0} sq ft
+              </span>
             </div>
-            <div>
-              Recommendations: {(file.ai_analysis_json as any).recommendations?.length || 0}
+            <div className="flex justify-between">
+              <span>Recommendations:</span>
+              <span className="font-medium">
+                {(file.ai_analysis_json as any).recommendations?.length || 0}
+              </span>
             </div>
           </div>
         </div>

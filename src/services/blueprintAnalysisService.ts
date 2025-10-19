@@ -197,13 +197,13 @@ Please analyze this blueprint and provide a structured response in JSON format w
   "rooms": [
     {
       "id": "unique-id",
-      "name": "Room name from blueprint",
+      "name": "Room name from blueprint labels (e.g., 'Master Bedroom', 'Kitchen', 'Bath 2')",
       "type": "kitchen|bathroom|bedroom|living_room|dining_room|office|other",
       "dimensions": {
         "length": number (in feet),
         "width": number (in feet),
         "height": number (in feet, if visible),
-        "squareFootage": number
+        "squareFootage": number (calculate length × width)
       },
       "features": ["list", "of", "notable", "features"],
       "requirements": {
@@ -229,16 +229,33 @@ Please analyze this blueprint and provide a structured response in JSON format w
   ]
 }
 
-Important instructions:
-1. Identify ALL rooms visible in the blueprint
-2. Extract dimensions from the blueprint annotations (convert to feet if needed)
-3. Identify room types based on fixtures shown (toilets=bathroom, appliances=kitchen, etc.)
-4. List notable features like islands, walk-in closets, built-ins
-5. Infer electrical/plumbing/HVAC requirements based on room type and features
-6. Generate product recommendations based on room types and dimensions
-7. Return ONLY valid JSON, no additional text
+CRITICAL INSTRUCTIONS - Follow these carefully:
+1. ROOM NAMES: Look for text labels on the blueprint that indicate room names (e.g., "MASTER BEDROOM", "KITCHEN", "LIVING ROOM", "BATH"). Use these exact labels as the room names. If no label exists, create a descriptive name based on the room type (e.g., "Bedroom 1", "Bathroom 2").
 
-If you cannot read specific dimensions, estimate based on typical room sizes and relationships.`;
+2. ROOM DIMENSIONS: Look for dimension annotations on the blueprint (usually shown as numbers with tick marks or arrows). Common formats include:
+   - "12'-0\" × 10'-6\"" (feet and inches)
+   - "12' × 10.5'" (decimal feet)
+   - Metric measurements that need conversion to feet
+   Extract these dimensions and convert everything to decimal feet.
+
+3. SQUARE FOOTAGE: For each room, calculate squareFootage = length × width. If dimensions show "12' × 10'", then squareFootage = 120.
+
+4. ROOM IDENTIFICATION: Identify room types based on:
+   - Text labels on the blueprint
+   - Fixtures shown (toilets/vanities = bathroom, stove/sink = kitchen, etc.)
+   - Door/window placement
+   - Typical room sizes and relationships
+
+5. BE THOROUGH: Extract ALL rooms visible in the blueprint, including closets, hallways, pantries, laundry rooms, etc.
+
+6. FEATURES: List notable features like walk-in closets, islands, built-in shelving, bay windows, etc.
+
+7. OUTPUT FORMAT: Return ONLY valid JSON with no additional text, markdown formatting, or explanations.
+
+If dimensions are not clearly readable, make reasonable estimates based on:
+- Typical room sizes (bedrooms: 120-200 sqft, master: 200-400 sqft, bathrooms: 40-100 sqft)
+- Scale and proportion relative to other rooms
+- Standard door widths (typically 3 feet) as reference`;
 
       // Call Claude Vision API
       const response = await anthropic.messages.create({
