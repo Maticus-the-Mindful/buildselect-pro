@@ -10,6 +10,7 @@ export default function AuthOrUpload() {
   const { wizardData, updateWizardData, handleNext, handleBack, setIsLoading } = useWizard();
   const [error, setError] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [apiConfig, setApiConfig] = useState({
     api_key: '',
     api_secret: '',
@@ -18,31 +19,46 @@ export default function AuthOrUpload() {
 
   const parseFile = async (file: File): Promise<string[]> => {
     return new Promise((resolve, reject) => {
-      if (file.type === 'text/csv') {
+      if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
         Papa.parse(file, {
           complete: (results) => {
-            if (results.meta.fields) {
+            if (results.errors && results.errors.length > 0) {
+              reject(new Error(`CSV parsing error: ${results.errors[0].message}`));
+              return;
+            }
+            if (results.meta.fields && results.meta.fields.length > 0) {
               resolve(results.meta.fields);
             } else {
-              reject(new Error('No columns found in CSV'));
+              reject(new Error('No column headers found in CSV file. Please ensure the first row contains column names.'));
             }
           },
-          error: (error) => reject(error),
+          error: (error) => reject(new Error(`Failed to read CSV file: ${error.message}`)),
           header: true,
           preview: 1,
         });
       } else {
         const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read Excel file. The file may be corrupted.'));
         reader.onload = (e) => {
-          const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-          
-          if (jsonData.length > 0) {
-            resolve(jsonData[0] as string[]);
-          } else {
-            reject(new Error('No data found in Excel file'));
+          try {
+            const data = new Uint8Array(e.target?.result as ArrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+              reject(new Error('No sheets found in Excel file.'));
+              return;
+            }
+
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            if (jsonData.length > 0 && Array.isArray(jsonData[0]) && jsonData[0].length > 0) {
+              resolve(jsonData[0] as string[]);
+            } else {
+              reject(new Error('No column headers found in Excel file. Please ensure the first row contains column names.'));
+            }
+          } catch (err: any) {
+            reject(new Error(`Failed to parse Excel file: ${err.message}`));
           }
         };
         reader.readAsArrayBuffer(file);
@@ -52,17 +68,26 @@ export default function AuthOrUpload() {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
+    if (!uploadedFile) return;
+
     setFile(uploadedFile);
     setError('');
 
     try {
       const columns = await parseFile(uploadedFile);
-      updateWizardData({ 
+
+      if (!columns || columns.length === 0) {
+        throw new Error('No columns found in file. Please ensure your file has headers.');
+      }
+
+      updateWizardData({
         file: uploadedFile,
-        detected_columns: columns 
+        detected_columns: columns
       });
-    } catch (err) {
-      setError('Failed to parse file. Please check the format.');
+    } catch (err: any) {
+      console.error('File parsing error:', err);
+      setFile(null);
+      setError(err.message || 'Failed to parse file. Please check the format and try again.');
     }
   }, [updateWizardData]);
 
@@ -77,6 +102,39 @@ export default function AuthOrUpload() {
     multiple: false,
   });
 
+  const testApiConnection = async (provider: string, config: any): Promise<boolean> => {
+    // TODO: Implement actual API connection tests for each provider
+    // For now, just validate that credentials are present
+    // In production, you would make actual API calls to verify credentials
+
+    switch (provider) {
+      case 'shopify':
+        // Would test Shopify API with: GET /admin/api/2024-01/shop.json
+        if (!config.api_key || !config.store_url) return false;
+        break;
+      case 'bigcommerce':
+        // Would test BigCommerce API with: GET /stores/{store_hash}/v3/catalog/summary
+        if (!config.api_key || !config.store_url) return false;
+        break;
+      case 'woocommerce':
+        // Would test WooCommerce API with: GET /wp-json/wc/v3/products
+        if (!config.api_key || !config.api_secret || !config.store_url) return false;
+        break;
+      case 'salsify':
+        // Would test Salsify API with: GET /v1/organizations
+        if (!config.api_key) return false;
+        break;
+      case 'api':
+        // Custom API - just validate credentials are present
+        if (!config.api_key || !config.store_url) return false;
+        break;
+    }
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return true;
+  };
+
   const handleContinue = async () => {
     setIsLoading(true);
     setError('');
@@ -85,40 +143,65 @@ export default function AuthOrUpload() {
       if (['csv', 'xlsx'].includes(wizardData.provider_type)) {
         if (!file) {
           setError('Please upload a file');
+          setIsLoading(false);
           return;
         }
 
-        // Upload to Supabase Storage
+        // Get current user for file path
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Show upload progress
+        setUploadProgress(10);
+
+        // Upload to Supabase Storage with user ID in path
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        
+        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        setUploadProgress(30);
+
         const { data, error: uploadError } = await supabase.storage
           .from('catalog-files')
           .upload(fileName, file);
 
         if (uploadError) throw uploadError;
 
-        updateWizardData({ 
-          config: { 
+        setUploadProgress(100);
+
+        updateWizardData({
+          config: {
             file_url: data.path,
             file_name: file.name,
           }
         });
       } else if (wizardData.provider_type === 'ferguson_demo') {
-        // Demo catalog - no auth needed
-        updateWizardData({ 
-          config: { 
-            demo: true 
-          }
+        // Demo catalog - no auth needed, use standard field names
+        const standardFields = ['sku', 'name', 'internal_category', 'price', 'brand', 'model', 'currency', 'availability', 'status', 'image_url', 'spec_pdf_url'];
+        updateWizardData({
+          config: {
+            demo: true
+          },
+          detected_columns: standardFields
         });
       } else {
-        // API provider - test connection would go here
-        updateWizardData({ config: apiConfig });
+        // API provider - test connection and use standard field names
+        const isValid = await testApiConnection(wizardData.provider_type, apiConfig);
+
+        if (!isValid) {
+          throw new Error('Invalid API credentials. Please check and try again.');
+        }
+
+        const standardFields = ['sku', 'name', 'internal_category', 'price', 'brand', 'model', 'currency', 'availability', 'status', 'image_url', 'spec_pdf_url'];
+        updateWizardData({
+          config: apiConfig,
+          detected_columns: standardFields
+        });
       }
 
       handleNext();
     } catch (err: any) {
       setError(err.message || 'An error occurred');
+      setUploadProgress(0);
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +209,11 @@ export default function AuthOrUpload() {
 
   const isFileProvider = ['csv', 'xlsx'].includes(wizardData.provider_type);
   const isDemoProvider = wizardData.provider_type === 'ferguson_demo';
+  const isApiProvider = ['shopify', 'bigcommerce', 'woocommerce', 'salsify', 'api'].includes(wizardData.provider_type);
+
+  // Validate API credentials
+  const isApiValid = !isApiProvider || (apiConfig.api_key && apiConfig.store_url);
+  const canContinue = isFileProvider ? !!file : isApiProvider ? isApiValid : true;
 
   return (
     <div>
@@ -190,6 +278,21 @@ export default function AuthOrUpload() {
               Download template file →
             </button>
           </div>
+
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600">Uploading...</span>
+                <span className="text-sm font-medium">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <div className="space-y-4">
@@ -256,10 +359,10 @@ export default function AuthOrUpload() {
         </button>
         <button
           onClick={handleContinue}
-          disabled={isFileProvider ? !file : false}
+          disabled={!canContinue || isLoading}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Continue
+          {isLoading ? 'Verifying...' : 'Continue'}
         </button>
       </div>
     </div>

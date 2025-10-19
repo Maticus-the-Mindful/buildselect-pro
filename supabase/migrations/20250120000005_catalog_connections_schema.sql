@@ -115,8 +115,35 @@ CREATE POLICY "Users can manage own mappings" ON catalog_mappings
 CREATE POLICY "Users can view own products" ON catalog_products
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM catalog_connections 
-      WHERE catalog_connections.id = catalog_products.connection_id 
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = catalog_products.connection_id
+      AND catalog_connections.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert own products" ON catalog_products
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = catalog_products.connection_id
+      AND catalog_connections.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update own products" ON catalog_products
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = catalog_products.connection_id
+      AND catalog_connections.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete own products" ON catalog_products
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = catalog_products.connection_id
       AND catalog_connections.user_id = auth.uid()
     )
   );
@@ -124,8 +151,17 @@ CREATE POLICY "Users can view own products" ON catalog_products
 CREATE POLICY "Users can view own jobs" ON ingest_jobs
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM catalog_connections 
-      WHERE catalog_connections.id = ingest_jobs.connection_id 
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = ingest_jobs.connection_id
+      AND catalog_connections.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can create own jobs" ON ingest_jobs
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM catalog_connections
+      WHERE catalog_connections.id = ingest_jobs.connection_id
       AND catalog_connections.user_id = auth.uid()
     )
   );

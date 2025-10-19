@@ -222,30 +222,36 @@ export interface Database {
           id: string
           project_id: string
           file_name: string
-          file_type: 'pdf' | 'image'
+          file_type: 'pdf' | 'dwg' | 'dxf' | 'dwf' | 'rvt' | 'ifc' | 'image'
           file_url: string
           file_size: number
           page_type: 'floor_plan' | 'elevation' | 'mep' | 'rcp' | 'other' | null
+          processing_status: 'pending' | 'processing' | 'completed' | 'failed'
+          ai_analysis_json: Json | null
           uploaded_at: string
         }
         Insert: {
           id?: string
           project_id: string
           file_name: string
-          file_type: 'pdf' | 'image'
+          file_type: 'pdf' | 'dwg' | 'dxf' | 'dwf' | 'rvt' | 'ifc' | 'image'
           file_url: string
           file_size: number
           page_type?: 'floor_plan' | 'elevation' | 'mep' | 'rcp' | 'other' | null
+          processing_status?: 'pending' | 'processing' | 'completed' | 'failed'
+          ai_analysis_json?: Json | null
           uploaded_at?: string
         }
         Update: {
           id?: string
           project_id?: string
           file_name?: string
-          file_type?: 'pdf' | 'image'
+          file_type?: 'pdf' | 'dwg' | 'dxf' | 'dwf' | 'rvt' | 'ifc' | 'image'
           file_url?: string
           file_size?: number
           page_type?: 'floor_plan' | 'elevation' | 'mep' | 'rcp' | 'other' | null
+          processing_status?: 'pending' | 'processing' | 'completed' | 'failed'
+          ai_analysis_json?: Json | null
           uploaded_at?: string
         }
       }

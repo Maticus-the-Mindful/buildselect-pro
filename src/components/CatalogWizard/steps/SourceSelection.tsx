@@ -60,11 +60,6 @@ export default function SourceSelection() {
   const handleContinue = () => {
     if (selected) {
       updateWizardData({ provider_type: selected });
-      
-      // Skip auth step for demo
-      if (selected === 'ferguson_demo') {
-        handleNext(); // Skip to field mapping
-      }
       handleNext();
     }
   };

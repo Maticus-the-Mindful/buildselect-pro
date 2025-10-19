@@ -18,6 +18,33 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getFileType = (file: File): string => {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    switch (extension) {
+      case 'dwg':
+        return 'dwg';
+      case 'dxf':
+        return 'dxf';
+      case 'dwf':
+        return 'dwf';
+      case 'rvt':
+        return 'rvt';
+      case 'ifc':
+        return 'ifc';
+      case 'pdf':
+        return 'pdf';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+        return 'image';
+      default:
+        return 'pdf'; // Default fallback
+    }
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -32,7 +59,7 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
 
       try {
         const fileName = `${projectId}/${Date.now()}-${file.name}`;
-        const fileType = file.type.startsWith('image/') ? 'image' : 'pdf';
+        const fileType = getFileType(file);
 
         setUploadingFiles(prev =>
           prev.map((f, idx) => idx === i ? { ...f, progress: 50 } : f)
@@ -54,7 +81,9 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
           file_type: fileType,
           file_url: publicUrl,
           file_size: file.size,
-          page_type: null
+          page_type: null,
+          processing_status: 'pending',
+          ai_analysis_json: null,
         });
 
         setUploadingFiles(prev =>
@@ -84,14 +113,16 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
         <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Plans & Files</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Click to browse or drag and drop PDF plans and images
+          Click to browse or drag and drop blueprint files, CAD drawings, and images
         </p>
-        <p className="text-xs text-gray-500">Supports: PDF, JPG, PNG (Max 10MB per file)</p>
+        <p className="text-xs text-gray-500">
+          Supports: PDF, DWG, DXF, DWF, RVT, IFC, JPG, PNG (Max 100MB per file)
+        </p>
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.jpg,.jpeg,.png"
+          accept=".pdf,.dwg,.dxf,.dwf,.rvt,.ifc,.jpg,.jpeg,.png,.gif,.bmp"
           onChange={handleFileSelect}
           className="hidden"
         />

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(npm install @anthropic-ai/sdk pdfjs-dist)",
+      "Bash(npm install --save-dev @types/papaparse)",
+      "Bash(supabase db push)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

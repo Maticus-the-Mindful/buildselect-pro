@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FileText, Image as ImageIcon, Download, Trash2 } from 'lucide-react';
+import { FileText, Image as ImageIcon, Download, Trash2, Box, Boxes, Cuboid } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
+import { BlueprintAnalysisButton } from './BlueprintAnalysisButton';
 
 type ProjectFile = Database['public']['Tables']['project_files']['Row'];
 
@@ -50,6 +51,47 @@ export function FileList({ projectId, onFileDeleted }: FileListProps) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const getFileIcon = (fileType: string) => {
+    switch (fileType) {
+      case 'pdf':
+        return <FileText className="w-10 h-10 text-red-500" />;
+      case 'image':
+        return <ImageIcon className="w-10 h-10 text-blue-500" />;
+      case 'dwg':
+      case 'dxf':
+        return <Box className="w-10 h-10 text-orange-500" />;
+      case 'dwf':
+        return <FileText className="w-10 h-10 text-purple-500" />;
+      case 'rvt':
+        return <Cuboid className="w-10 h-10 text-green-500" />;
+      case 'ifc':
+        return <Boxes className="w-10 h-10 text-teal-500" />;
+      default:
+        return <FileText className="w-10 h-10 text-gray-500" />;
+    }
+  };
+
+  const getFileTypeName = (fileType: string): string => {
+    switch (fileType) {
+      case 'dwg':
+        return 'AutoCAD Drawing';
+      case 'dxf':
+        return 'Drawing Exchange';
+      case 'dwf':
+        return 'Design Web Format';
+      case 'rvt':
+        return 'Revit BIM';
+      case 'ifc':
+        return 'BIM Standard';
+      case 'pdf':
+        return 'PDF Document';
+      case 'image':
+        return 'Image';
+      default:
+        return fileType.toUpperCase();
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -75,11 +117,7 @@ export function FileList({ projectId, onFileDeleted }: FileListProps) {
           className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <div className="flex-shrink-0">
-            {file.file_type === 'pdf' ? (
-              <FileText className="w-10 h-10 text-red-500" />
-            ) : (
-              <ImageIcon className="w-10 h-10 text-blue-500" />
-            )}
+            {getFileIcon(file.file_type)}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -87,11 +125,14 @@ export function FileList({ projectId, onFileDeleted }: FileListProps) {
               {file.file_name}
             </h4>
             <p className="text-xs text-gray-500">
-              {formatFileSize(file.file_size)} • Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
+              {getFileTypeName(file.file_type)} • {formatFileSize(file.file_size)} • Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
             </p>
+            <div className="mt-2">
+              <BlueprintAnalysisButton file={file} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <a
               href={file.file_url}
               target="_blank"
