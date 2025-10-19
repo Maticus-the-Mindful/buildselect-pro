@@ -71,10 +71,21 @@ export default function SourceSelection() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-2">Connect a catalog</h2>
-      <p className="text-gray-600 mb-8">
-        Pick a source, map a few fields, and bring your products into BuildSelect Pro.
-      </p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2">Connect a catalog</h2>
+          <p className="text-gray-600">
+            Pick a source, map a few fields, and bring your products into BuildSelect Pro.
+          </p>
+        </div>
+        <button
+          onClick={handleContinue}
+          disabled={!selected}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Continue
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 mb-8">
         {CATALOG_SOURCES.map((source) => {
@@ -83,15 +94,19 @@ export default function SourceSelection() {
             <button
               key={source.id}
               onClick={() => setSelected(source.id)}
-              className={`p-6 border-2 rounded-lg text-left transition-all ${
+              className={`p-4 border-2 rounded-lg text-left transition-all ${
                 selected === source.id
                   ? 'border-blue-600 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <Icon className="w-8 h-8 mb-3 text-gray-700" />
-              <h3 className="font-semibold mb-1">{source.name}</h3>
-              <p className="text-sm text-gray-600">{source.description}</p>
+              <div className="flex items-center gap-3">
+                <Icon className="w-6 h-6 text-gray-700 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm mb-1 truncate">{source.name}</h3>
+                  <p className="text-xs text-gray-600 line-clamp-2">{source.description}</p>
+                </div>
+              </div>
             </button>
           );
         })}
