@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CatalogWizardProvider, useWizard } from '../../contexts/CatalogWizardContext';
 import WizardSteps from './WizardSteps';
 import SourceSelection from './steps/SourceSelection';
@@ -14,7 +13,6 @@ const WIZARD_STEPS = [
 
 function WizardContent() {
   const { currentStep } = useWizard();
-  const navigate = useNavigate();
   const CurrentStepComponent = WIZARD_STEPS[currentStep].component;
 
   return (
@@ -23,7 +21,7 @@ function WizardContent() {
       <div className="bg-white border-b px-6 py-3">
         <nav className="flex items-center space-x-2 text-sm">
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => window.location.href = '/'}
             className="text-gray-600 hover:text-gray-900"
           >
             Dashboard
