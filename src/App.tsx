@@ -3,6 +3,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthPage } from './pages/AuthPage';
 import { Dashboard } from './pages/Dashboard';
 import { ProjectDetail } from './pages/ProjectDetail';
+import CatalogWizardPage from './pages/CatalogWizardPage';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -27,6 +28,10 @@ function AppContent() {
 
   if (projectMatch) {
     return <ProjectDetail projectId={projectMatch[1]} />;
+  }
+
+  if (path === '/catalogs/connect') {
+    return <CatalogWizardPage />;
   }
 
   return <Dashboard />;

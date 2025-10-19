@@ -1,12 +1,13 @@
-import { Play, Upload, FolderPlus } from 'lucide-react';
+import { Play, Upload, FolderPlus, Database } from 'lucide-react';
 
 interface HeroSectionProps {
   onCreateProject: () => void;
   onUploadPlan?: () => void;
   onWatchDemo?: () => void;
+  onConnectCatalog?: () => void;
 }
 
-export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo }: HeroSectionProps) {
+export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo, onConnectCatalog }: HeroSectionProps) {
   return (
     <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900 rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-12 mb-6 md:mb-8 border border-blue-100 dark:border-slate-700">
       <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
@@ -44,6 +45,17 @@ export function HeroSection({ onCreateProject, onUploadPlan, onWatchDemo }: Hero
             >
               <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
               Upload Plan PDF
+            </button>
+          </div>
+
+          {/* Secondary CTA */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <button
+              onClick={onConnectCatalog}
+              className="flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg hover:bg-green-700 transition-all font-medium text-sm sm:text-base"
+            >
+              <Database className="w-4 h-4 sm:w-5 sm:h-5" />
+              Connect a Catalog
             </button>
           </div>
 

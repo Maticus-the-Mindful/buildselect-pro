@@ -148,6 +148,10 @@ export function Dashboard() {
     setShowNewProject(true);
   };
 
+  const handleConnectCatalog = () => {
+    window.location.href = '/catalogs/connect';
+  };
+
   const handleOpenSample = () => {
     console.log('Opening sample project');
     // Logic to open/create sample project
@@ -191,6 +195,7 @@ export function Dashboard() {
             onCreateProject={() => setShowNewProject(true)}
             onUploadPlan={handleUploadPlan}
             onWatchDemo={handleWatchDemo}
+            onConnectCatalog={handleConnectCatalog}
           />
         )}
 
