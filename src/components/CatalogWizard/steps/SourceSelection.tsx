@@ -71,20 +71,11 @@ export default function SourceSelection() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">Connect a catalog</h2>
-          <p className="text-gray-600">
-            Pick a source, map a few fields, and bring your products into BuildSelect Pro.
-          </p>
-        </div>
-        <button
-          onClick={handleContinue}
-          disabled={!selected}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Continue
-        </button>
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-2">Connect a catalog</h2>
+        <p className="text-gray-600">
+          Pick a source, map a few fields, and bring your products into BuildSelect Pro.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-8">
@@ -113,12 +104,20 @@ export default function SourceSelection() {
       </div>
 
       <div className="flex justify-between">
-        <button 
-          className="px-6 py-2 text-gray-600 hover:text-gray-900"
-          onClick={() => window.open('/docs/catalog-sources', '_blank')}
-        >
-          Learn more
-        </button>
+        <div className="flex gap-3">
+          <button 
+            className="px-6 py-2 text-gray-600 hover:text-gray-900"
+            onClick={() => window.open('/docs/catalog-sources', '_blank')}
+          >
+            Learn more
+          </button>
+          <button 
+            className="px-6 py-2 text-gray-600 hover:text-gray-900"
+            onClick={() => window.location.href = '/'}
+          >
+            Cancel
+          </button>
+        </div>
         <button
           onClick={handleContinue}
           disabled={!selected}
