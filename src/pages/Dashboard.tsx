@@ -329,6 +329,11 @@ export function Dashboard() {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                 autoFocus
               />
+              {deleteConfirmation !== projectToDelete.name && deleteConfirmation.length > 0 && (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                  Project name doesn't match. Please type exactly: <span className="font-mono font-medium">{projectToDelete.name}</span>
+                </p>
+              )}
             </div>
             
             <div className="flex gap-3 justify-end">
@@ -348,6 +353,7 @@ export function Dashboard() {
                 onClick={confirmDeleteProject}
                 disabled={deleteConfirmation !== projectToDelete.name || deleting}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                title={deleteConfirmation !== projectToDelete.name ? "Please type the project name to enable deletion" : ""}
               >
                 {deleting ? (
                   <>
