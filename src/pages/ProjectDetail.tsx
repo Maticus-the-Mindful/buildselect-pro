@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, ClipboardList, Package, Settings, CheckCircle } from 'lucide-react';
+import { ArrowLeft, FileText, ClipboardList, Package, Settings, CheckCircle, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
 import { SelectionsSection } from '../components/project-detail/SelectionsSection';
@@ -21,6 +21,9 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadProject();
@@ -53,6 +56,47 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
       .eq('id', projectId);
 
     loadProject();
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project || deleteConfirmation !== project.name) {
+      return;
+    }
+
+    setDeleting(true);
+    
+    try {
+      // Delete associated files first
+      const { data: files } = await supabase
+        .from('project_files')
+        .select('file_path')
+        .eq('project_id', projectId);
+
+      if (files && files.length > 0) {
+        const filePaths = files.map(file => file.file_path);
+        await supabase.storage.from('project-files').remove(filePaths);
+      }
+
+      // Delete project (this will cascade delete related records)
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) {
+        console.error('Error deleting project:', error);
+        alert('Failed to delete project. Please try again.');
+        setDeleting(false);
+        return;
+      }
+
+      // Redirect to dashboard
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Failed to delete project. Please try again.');
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -134,6 +178,13 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
                   Mark as Exported
                 </button>
               )}
+              <button
+                onClick={() => setShowDeleteDialog(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Project
+              </button>
             </div>
           </div>
         </div>
@@ -169,6 +220,73 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
           {activeTab === 'selections' && <SelectionsSection projectId={project.id} />}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Delete Project
+              </h3>
+            </div>
+            
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              This action cannot be undone. This will permanently delete the project, all associated files, and selections.
+            </p>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Type the project name to confirm deletion:
+              </label>
+              <div className="bg-gray-50 dark:bg-slate-700 p-2 rounded border text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Project name: <span className="font-mono font-medium">{project.name}</span>
+              </div>
+              <input
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="Enter project name here"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmation('');
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProject}
+                disabled={deleteConfirmation !== project.name || deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete Project
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

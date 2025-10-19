@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, FolderOpen, Calendar, User } from 'lucide-react';
+import { Plus, FolderOpen, Calendar, User, Trash2, MoreVertical } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
 import { WelcomeModal } from '../components/dashboard/WelcomeModal';
@@ -24,6 +24,10 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showNewProject, setShowNewProject] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -76,6 +80,56 @@ export function Dashboard() {
   const handleProjectClick = (projectId: string) => {
     window.history.pushState({}, '', `/project/${projectId}`);
     window.location.reload();
+  };
+
+  const handleDeleteProject = async (project: Project, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent card click
+    setProjectToDelete(project);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    if (!projectToDelete || deleteConfirmation !== projectToDelete.name) {
+      return;
+    }
+
+    setDeleting(true);
+    
+    try {
+      // Delete associated files first
+      const { data: files } = await supabase
+        .from('project_files')
+        .select('file_path')
+        .eq('project_id', projectToDelete.id);
+
+      if (files && files.length > 0) {
+        const filePaths = files.map(file => file.file_path);
+        await supabase.storage.from('project-files').remove(filePaths);
+      }
+
+      // Delete project (this will cascade delete related records)
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectToDelete.id);
+
+      if (error) {
+        console.error('Error deleting project:', error);
+        alert('Failed to delete project. Please try again.');
+        setDeleting(false);
+        return;
+      }
+
+      // Refresh the projects list
+      loadData();
+      setShowDeleteDialog(false);
+      setDeleteConfirmation('');
+      setProjectToDelete(null);
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Failed to delete project. Please try again.');
+      setDeleting(false);
+    }
   };
 
   const handleSelectTemplate = (templateId: string) => {
@@ -171,9 +225,18 @@ export function Dashboard() {
                       >
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white flex-1">{project.name}</h3>
-                          <span className={`px-2 py-0.5 sm:py-1 rounded text-xs font-medium flex-shrink-0 whitespace-nowrap ${getStatusColor(project.status)}`}>
-                            {getStatusLabel(project.status)}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 sm:py-1 rounded text-xs font-medium flex-shrink-0 whitespace-nowrap ${getStatusColor(project.status)}`}>
+                              {getStatusLabel(project.status)}
+                            </span>
+                            <button
+                              onClick={(e) => handleDeleteProject(project, e)}
+                              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                              title="Delete project"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
 
                         {project.client_name && (
@@ -222,6 +285,74 @@ export function Dashboard() {
             localStorage.setItem('hasSeenWelcome', 'true');
           }}
         />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && projectToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Delete Project
+              </h3>
+            </div>
+            
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              This action cannot be undone. This will permanently delete the project, all associated files, and selections.
+            </p>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Type the project name to confirm deletion:
+              </label>
+              <div className="bg-gray-50 dark:bg-slate-700 p-2 rounded border text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Project name: <span className="font-mono font-medium">{projectToDelete.name}</span>
+              </div>
+              <input
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="Enter project name here"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmation('');
+                  setProjectToDelete(null);
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteProject}
+                disabled={deleteConfirmation !== projectToDelete.name || deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete Project
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
