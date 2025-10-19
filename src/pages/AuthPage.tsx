@@ -33,7 +33,14 @@ export function AuthPage() {
       if (error) setError(error.message);
     } else {
       const { error } = await signUp(email, password, fullName);
-      if (error) setError(error.message);
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess('Account created successfully! Please check your email (including spam folder) for a confirmation link to activate your account. You won\'t be able to sign in until you confirm your email address.');
+        setEmail('');
+        setPassword('');
+        setFullName('');
+      }
     }
 
     setLoading(false);
