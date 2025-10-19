@@ -454,22 +454,28 @@ function FilesTab({ projectId }: { projectId: string }) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upload Files</h3>
-        <FileUpload
-          projectId={projectId}
-          onUploadComplete={() => setRefreshKey(prev => prev + 1)}
-        />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Upload Section - Takes 1 column on desktop */}
+      <div className="lg:col-span-1">
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upload Files</h3>
+          <FileUpload
+            projectId={projectId}
+            onUploadComplete={() => setRefreshKey(prev => prev + 1)}
+          />
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Files</h3>
-        <FileList
-          key={refreshKey}
-          projectId={projectId}
-          onFileDeleted={() => setRefreshKey(prev => prev + 1)}
-        />
+      {/* Files List Section - Takes 2 columns on desktop */}
+      <div className="lg:col-span-2">
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-slate-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Files</h3>
+          <FileList
+            key={refreshKey}
+            projectId={projectId}
+            onFileDeleted={() => setRefreshKey(prev => prev + 1)}
+          />
+        </div>
       </div>
     </div>
   );

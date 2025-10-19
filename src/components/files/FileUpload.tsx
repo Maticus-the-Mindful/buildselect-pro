@@ -108,15 +108,15 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
     <div className="space-y-4">
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
+        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer"
       >
-        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Plans & Files</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Click to browse or drag and drop blueprint files, CAD drawings, and images
+        <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+        <h3 className="text-base font-medium text-gray-900 mb-2">Upload Files</h3>
+        <p className="text-xs text-gray-600 mb-3">
+          Click to browse or drag and drop files
         </p>
         <p className="text-xs text-gray-500">
-          Supports: PDF, DWG, DXF, DWF, RVT, IFC, JPG, PNG (Max 100MB per file)
+          PDF, DWG, DXF, DWF, RVT, IFC, JPG, PNG
         </p>
         <input
           ref={fileInputRef}
@@ -131,19 +131,17 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
       {uploadingFiles.length > 0 && (
         <div className="space-y-2">
           {uploadingFiles.map((file, idx) => (
-            <div key={idx} className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <File className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-900">{file.name}</span>
-                </div>
-                {file.error && (
-                  <span className="text-xs text-red-600">{file.error}</span>
-                )}
+            <div key={idx} className="bg-gray-50 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <File className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                <span className="text-xs font-medium text-gray-900 truncate">{file.name}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              {file.error && (
+                <p className="text-xs text-red-600 mb-2">{file.error}</p>
+              )}
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
                 <div
-                  className={`h-2 rounded-full transition-all ${
+                  className={`h-1.5 rounded-full transition-all ${
                     file.error ? 'bg-red-500' : 'bg-blue-600'
                   }`}
                   style={{ width: `${file.progress}%` }}
