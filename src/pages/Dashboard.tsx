@@ -12,6 +12,7 @@ import { StarterTemplates } from '../components/dashboard/StarterTemplates';
 import { SampleProject } from '../components/dashboard/SampleProject';
 import { WhatsNew } from '../components/dashboard/WhatsNew';
 import { EmptyState } from '../components/dashboard/EmptyState';
+import CatalogHealthWidget from '../components/dashboard/CatalogHealthWidget';
 import { Navbar } from '../components/layout/Navbar';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -279,6 +280,7 @@ export function Dashboard() {
 
           {/* Right Column - 1/3 width */}
           <div className="space-y-4 sm:space-y-6">
+            <CatalogHealthWidget />
             <TrustMetrics />
             <WhatsNew />
           </div>
