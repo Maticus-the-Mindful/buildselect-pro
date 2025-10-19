@@ -65,6 +65,12 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
 
     setDeleting(true);
     
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setDeleting(false);
+      alert('Delete operation timed out. Please try again.');
+    }, 30000); // 30 second timeout
+    
     try {
       // Delete associated files first
       const { data: files } = await supabase
@@ -83,9 +89,11 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
         .delete()
         .eq('id', projectId);
 
+      clearTimeout(timeoutId);
+
       if (error) {
         console.error('Error deleting project:', error);
-        alert('Failed to delete project. Please try again.');
+        alert(`Failed to delete project: ${error.message}`);
         setDeleting(false);
         return;
       }
@@ -93,8 +101,9 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
       // Redirect to dashboard
       window.location.href = '/';
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Error deleting project:', error);
-      alert('Failed to delete project. Please try again.');
+      alert(`Failed to delete project: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setDeleting(false);
     }
   };
@@ -260,6 +269,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
                 onClick={() => {
                   setShowDeleteDialog(false);
                   setDeleteConfirmation('');
+                  setDeleting(false);
                 }}
                 className="px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                 disabled={deleting}
