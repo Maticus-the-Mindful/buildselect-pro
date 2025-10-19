@@ -114,41 +114,50 @@ export function FileList({ projectId, onFileDeleted }: FileListProps) {
       {files.map((file) => (
         <div
           key={file.id}
-          className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="flex-shrink-0">
-            {getFileIcon(file.file_type)}
-          </div>
+          {/* Top row: Icon, file info, and action buttons */}
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex-shrink-0">
+              {getFileIcon(file.file_type)}
+            </div>
 
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-gray-900 truncate">
-              {file.file_name}
-            </h4>
-            <p className="text-xs text-gray-500">
-              {getFileTypeName(file.file_type)} • {formatFileSize(file.file_size)} • Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
-            </p>
-            <div className="mt-2">
-              <BlueprintAnalysisButton file={file} onAnalysisComplete={loadFiles} />
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-medium text-gray-900 truncate">
+                {file.file_name}
+              </h4>
+              <p className="text-xs text-gray-500 break-words sm:break-normal">
+                {getFileTypeName(file.file_type)} • {formatFileSize(file.file_size)}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
+              </p>
+            </div>
+
+            {/* Action buttons - always on the right */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <a
+                href={file.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Download"
+              >
+                <Download className="w-5 h-5" />
+              </a>
+              <button
+                onClick={() => handleDelete(file.id, file.file_url)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <a
-              href={file.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="Download"
-            >
-              <Download className="w-5 h-5" />
-            </a>
-            <button
-              onClick={() => handleDelete(file.id, file.file_url)}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+          {/* Analysis button and results - full width below */}
+          <div className="mt-3">
+            <BlueprintAnalysisButton file={file} onAnalysisComplete={loadFiles} />
           </div>
         </div>
       ))}

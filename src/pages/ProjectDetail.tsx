@@ -158,41 +158,43 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </button>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
               {project.client_name && (
                 <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Client: {project.client_name}</p>
               )}
             </div>
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(project.status)}`}>
                 {getStatusLabel(project.status)}
               </span>
               {canApprove && (
                 <button
                   onClick={() => updateProjectStatus('approved')}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  Approve
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>Approve</span>
                 </button>
               )}
               {canExport && (
                 <button
                   onClick={() => updateProjectStatus('exported')}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
                 >
-                  <Package className="w-4 h-4" />
-                  Mark as Exported
+                  <Package className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">Mark as Exported</span>
+                  <span className="sm:hidden">Export</span>
                 </button>
               )}
               <button
                 onClick={() => setShowDeleteDialog(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
               >
-                <Trash2 className="w-4 h-4" />
-                Delete Project
+                <Trash2 className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Delete Project</span>
+                <span className="sm:hidden">Delete</span>
               </button>
             </div>
           </div>
