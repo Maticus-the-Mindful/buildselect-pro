@@ -58,10 +58,10 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
         return (
           <button
             onClick={() => setShowResults(!showResults)}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors shadow-sm"
             title={showResults ? "Click to hide results" : "Click to show results"}
           >
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="w-6 h-6" />
             <span>AI Analyzed</span>
           </button>
         );
@@ -70,10 +70,10 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
         return (
           <button
             disabled
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg cursor-not-allowed"
+            className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-blue-700 bg-blue-50 rounded-lg cursor-not-allowed shadow-sm"
             title="Analysis in progress"
           >
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin" />
             <span>Analyzing...</span>
           </button>
         );
@@ -83,10 +83,10 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
           <button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+            className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 shadow-sm"
             title="Analysis failed - click to retry"
           >
-            <AlertCircle className="w-4 h-4" />
+            <AlertCircle className="w-6 h-6" />
             <span>Retry</span>
           </button>
         );
@@ -96,10 +96,10 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
           <button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors disabled:opacity-50"
+            className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors disabled:opacity-50 shadow-sm"
             title="Analyze blueprint with AI"
           >
-            <Brain className="w-4 h-4" />
+            <Brain className="w-6 h-6" />
             <span>{analyzing ? 'Analyzing...' : 'Analyze Blueprint'}</span>
           </button>
         );
@@ -112,20 +112,20 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
 
       {/* Results preview - shows detailed room breakdown */}
       {showResults && file.processing_status === 'completed' && file.ai_analysis_json && (
-        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg text-xs">
-          <div className="font-medium text-green-900 mb-2">Analysis Results</div>
+        <div className="mt-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg shadow-sm">
+          <div className="font-semibold text-green-900 mb-3 text-base">Analysis Results</div>
 
           {/* Room breakdown */}
           {(file.ai_analysis_json as any).rooms && (file.ai_analysis_json as any).rooms.length > 0 && (
-            <div className="mb-3">
-              <div className="font-medium text-green-800 mb-1.5">
+            <div className="mb-4">
+              <div className="font-semibold text-green-800 mb-2 text-sm">
                 Rooms ({(file.ai_analysis_json as any).rooms.length}):
               </div>
-              <div className="space-y-1 pl-2">
+              <div className="space-y-2 pl-2">
                 {(file.ai_analysis_json as any).rooms.map((room: any, idx: number) => (
-                  <div key={idx} className="flex justify-between items-start text-green-700">
-                    <span className="font-medium">{room.name || `Room ${idx + 1}`}</span>
-                    <span className="text-green-600 ml-2">
+                  <div key={idx} className="flex justify-between items-start text-green-700 text-sm">
+                    <span className="font-semibold">{room.name || `Room ${idx + 1}`}</span>
+                    <span className="text-green-600 ml-3 font-medium">
                       {room.dimensions?.squareFootage
                         ? `${Math.round(room.dimensions.squareFootage)} sq ft`
                         : 'N/A'}
@@ -137,16 +137,16 @@ export function BlueprintAnalysisButton({ file, onAnalysisComplete }: BlueprintA
           )}
 
           {/* Summary stats */}
-          <div className="text-green-700 space-y-1 pt-2 border-t border-green-200">
+          <div className="text-green-700 space-y-2 pt-3 border-t-2 border-green-200 text-sm">
             <div className="flex justify-between">
-              <span>Total area:</span>
-              <span className="font-medium">
+              <span className="font-medium">Total area:</span>
+              <span className="font-semibold">
                 {(file.ai_analysis_json as any).totalSquareFootage || 0} sq ft
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Recommendations:</span>
-              <span className="font-medium">
+              <span className="font-medium">Recommendations:</span>
+              <span className="font-semibold">
                 {(file.ai_analysis_json as any).recommendations?.length || 0}
               </span>
             </div>
