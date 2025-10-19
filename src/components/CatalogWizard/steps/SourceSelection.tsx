@@ -112,7 +112,10 @@ export default function SourceSelection() {
             Learn more
           </button>
           <button 
-            className="px-6 py-2 text-gray-600 hover:text-gray-900"
+            className="px-6 py-2 text-white rounded-lg transition-colors"
+            style={{ backgroundColor: '#ed983b' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d67c2a'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ed983b'}
             onClick={() => window.location.href = '/'}
           >
             Cancel
