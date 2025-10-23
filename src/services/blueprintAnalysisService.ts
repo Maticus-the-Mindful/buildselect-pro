@@ -41,6 +41,7 @@ export interface RoomData {
     height?: number;
     squareFootage: number;
   };
+  confidence: number; // 0-1 score indicating measurement certainty
   features: string[];
   requirements: {
     electrical?: string[];
@@ -80,16 +81,31 @@ export const blueprintAnalysisService = {
 
       const startTime = Date.now();
 
-      // TODO: Implement actual AI analysis
-      // This is where you would:
-      // 1. For PDFs: Extract text and images, use OCR if needed
-      // 2. For CAD files (DWG, DXF): Parse geometry and annotations
-      // 3. For BIM files (RVT, IFC): Extract building data model
-      // 4. Use Claude/GPT-4 Vision to analyze floor plans and extract room data
-      // 5. Cross-reference with questionnaire data for context
+      // Get project context for enriched analysis
+      const { data: fileData } = await supabase
+        .from('project_files')
+        .select('project_id')
+        .eq('id', fileId)
+        .single();
 
-      // Example placeholder analysis
-      const analysisResult = await this.performAIAnalysis(fileUrl, fileType);
+      let projectContext = null;
+      if (fileData?.project_id) {
+        const { data: projectData } = await supabase
+          .from('projects')
+          .select('name, questionnaire_json')
+          .eq('id', fileData.project_id)
+          .single();
+
+        if (projectData) {
+          projectContext = {
+            projectName: projectData.name,
+            questionnaire: projectData.questionnaire_json,
+          };
+        }
+      }
+
+      // Perform AI analysis with project context
+      const analysisResult = await this.performAIAnalysis(fileUrl, fileType, projectContext);
 
       const processingTime = Date.now() - startTime;
 
@@ -132,11 +148,12 @@ export const blueprintAnalysisService = {
    */
   async performAIAnalysis(
     fileUrl: string,
-    fileType: string
+    fileType: string,
+    projectContext?: { projectName: string; questionnaire: any } | null
   ): Promise<Omit<BlueprintAnalysisResult, 'metadata'>> {
     // Handle PDF and image files with Claude Vision
     if (fileType === 'pdf' || fileType === 'image') {
-      return await this.analyzeBlueprintWithClaudeVision(fileUrl, fileType);
+      return await this.analyzeBlueprintWithClaudeVision(fileUrl, fileType, projectContext);
     }
 
     // CAD and BIM files - placeholder for future implementation
@@ -158,38 +175,58 @@ export const blueprintAnalysisService = {
   },
 
   /**
-   * Analyzes blueprint images using Claude Vision API
+   * Analyzes blueprint images using Claude Vision API with multi-page support
    */
   async analyzeBlueprintWithClaudeVision(
     fileUrl: string,
-    fileType: string
+    fileType: string,
+    projectContext?: { projectName: string; questionnaire: any } | null
   ): Promise<Omit<BlueprintAnalysisResult, 'metadata'>> {
     try {
-      let imageBase64: string;
-      let mediaType: 'image/jpeg' | 'image/png' = 'image/jpeg';
+      let images: Array<{ base64: string; mediaType: 'image/jpeg' | 'image/png' }> = [];
 
       // Convert PDF to images or get image directly
       if (fileType === 'pdf') {
-        const pdfImages = await fetchPdfAndConvert(fileUrl, 5); // Process first 5 pages
+        const pdfImages = await fetchPdfAndConvert(fileUrl, 10); // Process up to 10 pages
 
         if (pdfImages.length === 0) {
           throw new Error('No pages found in PDF');
         }
 
-        // Use the first page for analysis (most PDFs have floor plans on page 1)
-        imageBase64 = pdfImages[0].base64;
+        // All pages are PNG now (from our updated pdfToImage.ts)
+        images = pdfImages.map(img => ({
+          base64: img.base64,
+          mediaType: 'image/png' as const
+        }));
       } else {
         // Direct image file
-        imageBase64 = await convertImageToBase64(fileUrl);
+        const imageBase64 = await convertImageToBase64(fileUrl);
+        const mediaType: 'image/jpeg' | 'image/png' = fileUrl.toLowerCase().includes('.png')
+          ? 'image/png'
+          : 'image/jpeg';
 
-        // Determine media type from URL
-        if (fileUrl.toLowerCase().includes('.png')) {
-          mediaType = 'image/png';
-        }
+        images = [{ base64: imageBase64, mediaType }];
       }
 
-      // Create the analysis prompt
+      // Create the enhanced analysis prompt
+      const pageContext = images.length > 1
+        ? `You are analyzing ${images.length} blueprint pages. These may show different floors, sections, or views of the same building. Analyze ALL pages and combine the information into a single comprehensive response.`
+        : `You are analyzing a single blueprint page.`;
+
+      // Add project context if available
+      const contextSection = projectContext?.questionnaire
+        ? `\n\nPROJECT CONTEXT:
+- Project name: ${projectContext.projectName || 'Unknown'}
+- Project type: ${projectContext.questionnaire.project_type || 'residential'}
+- Building type: ${projectContext.questionnaire.building_type || 'single family'}
+- Expected floors: ${projectContext.questionnaire.floor_count || 'unknown'}
+
+Use this context to validate your analysis. For example, if the project type is "residential", expect typical residential rooms. If floor_count is specified, verify your floorCount matches or explain any discrepancy.`
+        : '';
+
       const prompt = `You are an expert architectural blueprint analyst. Analyze this floor plan and extract detailed information.
+
+${pageContext}${contextSection}
 
 Please analyze this blueprint and provide a structured response in JSON format with the following schema:
 
@@ -205,6 +242,7 @@ Please analyze this blueprint and provide a structured response in JSON format w
         "height": number (in feet, if visible),
         "squareFootage": number (calculate length × width)
       },
+      "confidence": number (0-1, how certain are you about this room's measurements),
       "features": ["list", "of", "notable", "features"],
       "requirements": {
         "electrical": ["list of electrical needs"],
@@ -230,6 +268,10 @@ Please analyze this blueprint and provide a structured response in JSON format w
 }
 
 CRITICAL INSTRUCTIONS - Follow these carefully:
+
+0. SCALE DETECTION (PRIORITY): First, look for the scale legend on the blueprint (e.g., "1/4\" = 1'", "1:50", or a graphic scale bar).
+   If found, use it to accurately calculate dimensions. If dimension annotations are missing, use the scale bar/legend to measure rooms.
+
 1. ROOM NAMES: Look for text labels on the blueprint that indicate room names (e.g., "MASTER BEDROOM", "KITCHEN", "LIVING ROOM", "BATH"). Use these exact labels as the room names. If no label exists, create a descriptive name based on the room type (e.g., "Bedroom 1", "Bathroom 2").
 
 2. ROOM DIMENSIONS: Look for dimension annotations on the blueprint (usually shown as numbers with tick marks or arrows). Common formats include:
@@ -252,29 +294,47 @@ CRITICAL INSTRUCTIONS - Follow these carefully:
 
 7. OUTPUT FORMAT: Return ONLY valid JSON with no additional text, markdown formatting, or explanations.
 
+8. DIMENSION VALIDATION: Verify measurements are reasonable:
+   - Typical bedroom: 100-200 sq ft
+   - Master bedroom: 200-400 sq ft
+   - Kitchen: 150-400 sq ft
+   - Bathroom: 40-100 sq ft
+   - Living room: 200-500 sq ft
+   If extracted dimensions seem wrong (e.g., 10 sq ft bedroom), re-examine the blueprint scale and recalculate.
+
+9. CONFIDENCE SCORING: For each room, provide a confidence score (0-1):
+   - 1.0 = Dimensions clearly labeled and readable
+   - 0.8 = Dimensions calculated from scale, labels clear
+   - 0.6 = Estimated from proportions, some labels visible
+   - 0.4 = Rough estimate, poor image quality or unclear labels
+   - 0.2 = Very uncertain, minimal information available
+
 If dimensions are not clearly readable, make reasonable estimates based on:
-- Typical room sizes (bedrooms: 120-200 sqft, master: 200-400 sqft, bathrooms: 40-100 sqft)
-- Scale and proportion relative to other rooms
+- Scale legend and measurements from the scale bar
+- Typical room sizes for the room type
+- Proportions relative to other rooms
 - Standard door widths (typically 3 feet) as reference`;
 
-      // Call Claude Vision API
+      // Call Claude Vision API with all pages in a single request (batch processing)
       const response = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4096,
+        max_tokens: 8192, // Increased for multi-page analysis
         messages: [
           {
             role: 'user',
             content: [
-              {
-                type: 'image',
+              // Add all images first
+              ...images.map((img) => ({
+                type: 'image' as const,
                 source: {
-                  type: 'base64',
-                  media_type: mediaType,
-                  data: imageBase64,
+                  type: 'base64' as const,
+                  media_type: img.mediaType,
+                  data: img.base64,
                 },
-              },
+              })),
+              // Then add the text prompt
               {
-                type: 'text',
+                type: 'text' as const,
                 text: prompt,
               },
             ],
@@ -306,6 +366,14 @@ If dimensions are not clearly readable, make reasonable estimates based on:
       } catch (parseError) {
         console.error('Failed to parse Claude response:', textContent.text);
         throw new Error('Failed to parse AI response as JSON');
+      }
+
+      // Validate the analysis result
+      const validationErrors = this.validateAnalysisResult(analysisResult);
+      if (validationErrors.length > 0) {
+        console.warn('Analysis validation warnings:', validationErrors);
+        // Sanitize the result to fix common issues
+        analysisResult = this.sanitizeAnalysisResult(analysisResult);
       }
 
       // Validate and return the result
@@ -430,5 +498,191 @@ If dimensions are not clearly readable, make reasonable estimates based on:
       roomsByType,
       allRecommendations,
     };
+  },
+
+  /**
+   * Validates analysis result structure and data quality
+   *
+   * @param result - The parsed analysis result
+   * @returns Array of validation error messages
+   */
+  validateAnalysisResult(result: any): string[] {
+    const errors: string[] = [];
+
+    // Check rooms array exists
+    if (!Array.isArray(result.rooms)) {
+      errors.push('rooms is not an array');
+      return errors; // Can't continue validation
+    }
+
+    // Validate each room
+    result.rooms.forEach((room: any, idx: number) => {
+      // Check required fields
+      if (!room.name) {
+        errors.push(`Room ${idx} is missing a name`);
+      }
+
+      // Check dimensions exist
+      if (!room.dimensions) {
+        errors.push(`Room ${idx} (${room.name || 'unnamed'}) is missing dimensions`);
+      } else {
+        // Validate square footage is reasonable
+        const sqft = room.dimensions.squareFootage;
+        if (!sqft || sqft < 10) {
+          errors.push(
+            `Room ${idx} (${room.name || 'unnamed'}) has invalid square footage: ${sqft}`
+          );
+        }
+        if (sqft > 2000) {
+          errors.push(
+            `Room ${idx} (${room.name || 'unnamed'}) seems too large: ${sqft} sq ft - verify this is correct`
+          );
+        }
+
+        // Check length and width make sense
+        if (room.dimensions.length && room.dimensions.width) {
+          const calculatedSqft = room.dimensions.length * room.dimensions.width;
+          if (Math.abs(calculatedSqft - sqft) > 5) {
+            errors.push(
+              `Room ${idx} (${room.name || 'unnamed'}) has mismatched dimensions: ${room.dimensions.length} × ${room.dimensions.width} ≠ ${sqft}`
+            );
+          }
+        }
+      }
+
+      // Check confidence score
+      if (room.confidence !== undefined && (room.confidence < 0 || room.confidence > 1)) {
+        errors.push(
+          `Room ${idx} (${room.name || 'unnamed'}) has invalid confidence score: ${room.confidence}`
+        );
+      }
+
+      // Validate room type
+      const validTypes = [
+        'kitchen',
+        'bathroom',
+        'bedroom',
+        'living_room',
+        'dining_room',
+        'office',
+        'other',
+      ];
+      if (!validTypes.includes(room.type)) {
+        errors.push(
+          `Room ${idx} (${room.name || 'unnamed'}) has invalid type: ${room.type}`
+        );
+      }
+    });
+
+    // Check total square footage
+    if (result.totalSquareFootage && result.totalSquareFootage < 100) {
+      errors.push(
+        `Total square footage seems too low: ${result.totalSquareFootage} sq ft`
+      );
+    }
+
+    return errors;
+  },
+
+  /**
+   * Sanitizes analysis result to fix common issues
+   *
+   * @param result - The analysis result to sanitize
+   * @returns Sanitized result
+   */
+  sanitizeAnalysisResult(result: any): any {
+    // Ensure rooms array exists
+    if (!Array.isArray(result.rooms)) {
+      result.rooms = [];
+    }
+
+    // Fix each room
+    result.rooms = result.rooms
+      .map((room: any, idx: number) => {
+        // Ensure required fields
+        room.id = room.id || `room-${idx + 1}`;
+        room.name = room.name || `Room ${idx + 1}`;
+        room.features = Array.isArray(room.features) ? room.features : [];
+        room.requirements = room.requirements || {};
+
+        // Fix dimensions
+        if (!room.dimensions) {
+          room.dimensions = {
+            length: 0,
+            width: 0,
+            squareFootage: 0,
+          };
+        } else {
+          // Recalculate square footage if mismatched
+          if (room.dimensions.length && room.dimensions.width) {
+            const calculated = room.dimensions.length * room.dimensions.width;
+            const existing = room.dimensions.squareFootage || 0;
+
+            // If mismatch is significant, use calculated value
+            if (Math.abs(calculated - existing) > 5) {
+              room.dimensions.squareFootage = Math.round(calculated);
+            }
+          }
+
+          // Ensure square footage is reasonable
+          if (room.dimensions.squareFootage < 10) {
+            // Too small, likely an error - use default based on room type
+            room.dimensions.squareFootage = this.getDefaultSquareFootage(room.type);
+          }
+        }
+
+        // Ensure confidence score is valid
+        if (
+          room.confidence === undefined ||
+          room.confidence < 0 ||
+          room.confidence > 1
+        ) {
+          // Set low confidence if data was questionable
+          room.confidence = 0.5;
+        }
+
+        // Validate room type
+        const validTypes = [
+          'kitchen',
+          'bathroom',
+          'bedroom',
+          'living_room',
+          'dining_room',
+          'office',
+          'other',
+        ];
+        if (!validTypes.includes(room.type)) {
+          room.type = 'other';
+        }
+
+        return room;
+      })
+      .filter((room: any) => room !== null); // Remove null rooms
+
+    // Ensure other fields exist
+    result.totalSquareFootage = result.totalSquareFootage || 0;
+    result.floorCount = result.floorCount || 1;
+    result.recommendations = Array.isArray(result.recommendations)
+      ? result.recommendations
+      : [];
+
+    return result;
+  },
+
+  /**
+   * Gets default square footage for a room type
+   */
+  getDefaultSquareFootage(roomType: string): number {
+    const defaults: Record<string, number> = {
+      kitchen: 200,
+      bathroom: 60,
+      bedroom: 150,
+      living_room: 300,
+      dining_room: 200,
+      office: 150,
+      other: 100,
+    };
+
+    return defaults[roomType] || 100;
   },
 };

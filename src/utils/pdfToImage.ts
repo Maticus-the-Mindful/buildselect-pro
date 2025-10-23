@@ -1,4 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import { enhanceBlueprintImage } from './imagePreprocessing';
 
 // Configure PDF.js worker - use stable CDN version
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -15,13 +16,13 @@ export interface PdfPageImage {
  *
  * @param pdfUrl - URL or data URL of the PDF file
  * @param maxPages - Maximum number of pages to convert (default: 10)
- * @param scale - Resolution scale (default: 2 for high quality)
+ * @param scale - Resolution scale (default: 3 for high quality blueprint analysis)
  * @returns Array of page images as base64 strings
  */
 export async function convertPdfToImages(
   pdfUrl: string,
   maxPages: number = 10,
-  scale: number = 2
+  scale: number = 3
 ): Promise<PdfPageImage[]> {
   try {
     // Load the PDF document
@@ -53,8 +54,11 @@ export async function convertPdfToImages(
         viewport: viewport,
       }).promise;
 
-      // Convert canvas to base64 image
-      const base64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+      // Enhance image quality for better AI analysis (contrast, sharpness)
+      const enhancedCanvas = enhanceBlueprintImage(canvas);
+
+      // Convert canvas to base64 image (PNG for lossless quality - better for text/dimensions)
+      const base64 = enhancedCanvas.toDataURL('image/png').split(',')[1];
 
       pageImages.push({
         pageNumber: pageNum,
